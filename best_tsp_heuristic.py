@@ -1,50 +1,52 @@
-import numpy as np
-
 def select_next_node(distance_matrix, current_node, unvisited_nodes):
     if len(unvisited_nodes) == 1:
         return unvisited_nodes[0]
+        
+    # Enhanced dynamic weighting based on solution progress
+    progress = 1 - len(unvisited_nodes)/len(distance_matrix)
+    alpha = 0.15 + 0.25 * (1 - progress)**2  # More aggressive early, gentle later
     
-    n = len(distance_matrix)
-    progress = 1 - len(unvisited_nodes)/n
+    # Precompute node importance metrics
+    centrality = {}
+    connectivity = {}
+    for node in unvisited_nodes:
+        # Improved centrality measure (weighted reciprocal)
+        centrality[node] = sum(1/(distance_matrix[node][other] + 1e-5)
+                             for other in unvisited_nodes if other != node)
+        
+        # Enhanced connectivity measure (incorporates both global and local structure)
+        distances = [distance_matrix[node][other] for other in unvisited_nodes if other != node]
+        avg_dist = sum(distances) / len(distances)
+        std_dist = (sum((d - avg_dist)**2 for d in distances)/len(distances))**0.5
+        connectivity[node] = (1/(avg_dist + 1e-5)) * (1 - 0.2 * std_dist/(avg_dist + 1e-5))
     
-    # Maintain the adaptive alpha scaling (proven effective)
-    avg_dist = np.mean(distance_matrix)
-    alpha_base = 0.4 / np.log10(n + 1) * (1 + 0.5 * (avg_dist > np.median(distance_matrix)))
-    alpha = alpha_base * (0.7 + 0.6 * progress)
+    min_score = float('inf')
+    best_node = unvisited_nodes[0]
     
-    # Precompute values more efficiently
-    remaining_nodes = list(unvisited_nodes)
-    remaining_distances = distance_matrix[remaining_nodes]
-    centroid = np.mean(remaining_distances, axis=0)
-    
-    # Compute all penalty components vectorized
-    centroid_divs = np.linalg.norm(remaining_distances - centroid, axis=1)
-    
-    # Mean distance to other unvisited nodes for each candidate
-    conn_scores = np.mean(remaining_distances, axis=1)
-    
-    # Hub scores (how much each node helps others connect)
-    hub_scores = []
-    for i, node in enumerate(remaining_nodes):
-        others = [n for n in remaining_nodes if n != node]
-        hub_scores.append(np.mean([np.min(distance_matrix[other]) for other in others]))
-    hub_scores = np.array(hub_scores)
-    
-    # Adaptive weights based on progress
-    centroid_weight = 0.4 * (1.0 - 0.5 * progress)  # Favor centroid more early
-    conn_weight = 0.4 * (0.3 + 0.7 * progress)      # Connectivity matters more later
-    hub_weight = 0.2                                # Constant hub importance
-    
-    # Combine penalty terms with adaptive weights
-    penalty_terms = (centroid_weight * centroid_divs + 
-                     conn_weight * conn_scores + 
-                     hub_weight * hub_scores)
-    
-    # Get distances from current node
-    distances = distance_matrix[current_node][remaining_nodes]
-    
-    # Compute final scores
-    scores = distances - alpha * penalty_terms
-    
-    # Return node with minimum score
-    return remaining_nodes[np.argmin(scores)]
+    for candidate in unvisited_nodes:
+        base_distance = distance_matrix[current_node][candidate]
+        
+        # Dynamic penalty components based on progress
+        centrality_weight = 0.3 + 0.4 * progress  # More important later
+        connectivity_weight = 0.7 - 0.4 * progress  # More important early
+        
+        # Normalize metrics for the current candidate set
+        max_centrality = max(centrality.values())
+        min_centrality = min(centrality.values())
+        norm_centrality = (centrality[candidate] - min_centrality) / (max_centrality - min_centrality + 1e-5)
+        
+        max_connectivity = max(connectivity.values())
+        min_connectivity = min(connectivity.values())
+        norm_connectivity = (connectivity[candidate] - min_connectivity) / (max_connectivity - min_connectivity + 1e-5)
+        
+        # Combined penalty term (weighted harmonic mean)
+        penalty = 1 / (centrality_weight/(norm_centrality + 1e-5) + connectivity_weight/(norm_connectivity + 1e-5))
+        
+        # Final score with dynamic weighting
+        score = base_distance + alpha * penalty
+        
+        if score < min_score:
+            min_score = score
+            best_node = candidate
+            
+    return best_node

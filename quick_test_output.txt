@@ -1,0 +1,12 @@
+Step 1: importing pandas...
+Step 2: loaded 113 rows
+Step 3: first instance: a280
+Step 4: num_cities = 54
+Step 5: got 54 coords
+Step 6: dist_matrix shape = (54, 54)
+SUCCESS: TSP data loading works!
+
+--- Testing tsp_sandbox ---
+Loaded 3 instances
+Average distance: 743.12
+Per-instance distances: ['653.18', '959.42', '616.76']

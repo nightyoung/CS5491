@@ -1,0 +1,59 @@
+============================================================
+测试 NoveltyCalculator
+============================================================
+
+1. 测试特征提取:
+   代码1特征: {'compare', 'call:float', 'loop'}
+   代码2特征: {'norm', 'op:Sub', 'call:len', 'call:mean', 'op:Div', 'call:log10', 'call:norm', 'centroid', 'compare', 'min', 'call:argmin', 'op:Add', 'mean', 'op:Mult', 'call:list'}
+   共同特征: {'compare'}
+
+2. 测试新颖性分数:
+   程序1新颖性: 1.0000
+   程序2新颖性: 0.9412
+   程序3新颖性: 1.0000
+
+3. 获取最佳新颖个体:
+   score=1.0000, novelty=1.0000
+   score=1.0500, novelty=1.0000
+
+============================================================
+测试 ParetoOptimizer
+============================================================
+
+输入程序:
+   A: perf=0.90, nov=0.30
+   B: perf=1.00, nov=0.80
+   C: perf=0.95, nov=0.50
+   D: perf=0.85, nov=0.20
+
+选中程序 (top-3):
+   D: fitness=0.7000
+   A: fitness=0.5167
+   C: fitness=0.3833
+
+============================================================
+测试 NoveltyDrivenSearch
+============================================================
+
+评估过程:
+  最近邻: score=1.0000, novelty=1.00, selected=True
+  质心惩罚: score=0.9500, novelty=0.93, selected=True
+  自适应alpha: score=0.9200, novelty=0.94, selected=True
+
+统计信息:
+   total_evaluated: 3
+   unique_novelties: 3
+   elite_archive_size: 2
+   novelty_range: (0.9285714285714286, 1.0)
+   performance_range: (0.92, 1.0)
+
+多样化种群 (top-3):
+   perf=1.0000, nov=1.0000
+   perf=0.9500, nov=0.9286
+   perf=0.9200, nov=0.9412
+
+============================================================
+Traceback (most recent call last):
+  File "c:\Users\14480\Desktop\git\5491\5491111\CS5491\test_novelty.py", line 174, in <module>
+    print("\u2705 所有Novelty测试通过！")
+UnicodeEncodeError: 'gbk' codec can't encode character '\u2705' in position 0: illegal multibyte sequence
