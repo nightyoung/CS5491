@@ -44,7 +44,7 @@ def main():
     )
     
     # 加载数据
-    dataset = load_tsp_data_from_csv("tsp_instances_dataset.csv", num_instances=25)
+    dataset = load_tsp_data_from_csv("tsp_instances_dataset.csv", num_instances=None)
     
     if not dataset:
         return
