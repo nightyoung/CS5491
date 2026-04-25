@@ -367,8 +367,9 @@ class EnhancedPopulationManager:
         should_keep = self.infeasible_tracker.add(code, score_ratio, novelty)
         
         if not should_keep:
-            result['info'] = f"Skip (infeasible score {score_ratio:.4f} > {self.infeasible_threshold})"
-            return result
+          threshold = getattr(self, 'infeasible_threshold', 2.0) # 即使忘了定义属性也不会崩
+        result['info'] = f"Skip (infeasible score {score_ratio:.4f} > {threshold})"
+        return result
         
         # 2. 选择目标岛屿（基于新颖性选择岛屿）
         island_id = self._select_island_for_program(novelty)
