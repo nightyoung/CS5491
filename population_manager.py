@@ -368,7 +368,7 @@ class EnhancedPopulationManager:
         
         if not should_keep:
           threshold = getattr(self, 'infeasible_threshold', 2.0) # 即使忘了定义属性也不会崩
-        result['info'] = f"Skip (infeasible score {score_ratio:.4f} > {threshold})"
+          result['info'] = f"Skip (infeasible score {score_ratio:.4f} > {threshold})"
         return result
         
         # 2. 选择目标岛屿（基于新颖性选择岛屿）
